@@ -1,6 +1,6 @@
 # Vega Protocol Authenticator
 
-Golang library for submitting signed transactions to Vega Protocol
+Golang library for submitting signed transactions to Vega Protocol (via GRPC)
 
 ## Usage
 
