@@ -17,30 +17,6 @@ import (
 	"math/rand"
 )
 
-type ProofOfWork struct {
-	BlockHash   string
-	BlockHeight uint64
-	Difficulty  uint
-	Nonce       uint64
-	TxId        string
-}
-
-func NewProofOfWork(
-	blockHash string,
-	blockHeight uint64,
-	difficulty uint,
-	nonce uint64,
-	txId string,
-) *ProofOfWork {
-	return &ProofOfWork{
-		BlockHash:   blockHash,
-		BlockHeight: blockHeight,
-		Difficulty:  difficulty,
-		Nonce:       nonce,
-		TxId:        txId,
-	}
-}
-
 type Authenticator struct {
 	coreNode string
 	wallet   *Wallet
@@ -65,13 +41,13 @@ func (a *Authenticator) getLastBlock() *corepb.LastBlockHeightResponse {
 
 func (a *Authenticator) buildTx(
 	keyPair *KeyPair,
-	chainId string,
-	pow *ProofOfWork,
+	lastBlock *corepb.LastBlockHeightResponse,
+	proofOfWork *commandspb.ProofOfWork,
 	inputData *commandspb.InputData,
 ) *commandspb.Transaction {
 	inputDataBytes, _ := proto.Marshal(inputData)
 	inputDataPacked := bytes.Join([][]byte{
-		[]byte(chainId),
+		[]byte(lastBlock.ChainId),
 		[]byte("\u0000"),
 		inputDataBytes,
 	}, []byte{})
@@ -81,7 +57,6 @@ func (a *Authenticator) buildTx(
 		Version: 1,
 		Value:   hexSig,
 	}
-	proofOfWork := &commandspb.ProofOfWork{Tid: pow.TxId, Nonce: pow.Nonce}
 	tx := &commandspb.Transaction{
 		Version:   commandspb.TxVersion_TX_VERSION_V3,
 		Signature: signature,
@@ -99,17 +74,11 @@ func (a *Authenticator) signInputData(privateKey string, inputDataPacked []byte)
 	return hex.EncodeToString(sig)
 }
 
-func (a *Authenticator) getProofOfWork() *ProofOfWork {
-	lastBlock := a.getLastBlock()
-	if lastBlock == nil {
-		return nil
-	}
+func (a *Authenticator) getProofOfWork(lastBlock *corepb.LastBlockHeightResponse) *commandspb.ProofOfWork {
 	difficulty := uint(lastBlock.GetSpamPowDifficulty())
 	txId, _ := uuid.NewRandom()
 	nonce, _, _ := crypto.PoW(lastBlock.Hash, txId.String(), difficulty, lastBlock.SpamPowHashFunction)
-	return NewProofOfWork(
-		lastBlock.Hash, lastBlock.Height, difficulty, nonce, txId.String(),
-	)
+	return &commandspb.ProofOfWork{Tid: txId.String(), Nonce: nonce}
 }
 
 func (a *Authenticator) Sign(partyId string, inputData *commandspb.InputData) *commandspb.Transaction {
@@ -117,19 +86,19 @@ func (a *Authenticator) Sign(partyId string, inputData *commandspb.InputData) *c
 	if lastBlock == nil {
 		return nil
 	}
-	pow := a.getProofOfWork()
+	pow := a.getProofOfWork(lastBlock)
 	if pow == nil {
 		log.Printf("couldn't get proof of work")
 		return nil
 	}
-	inputData.BlockHeight = pow.BlockHeight
+	inputData.BlockHeight = lastBlock.Height
 	inputData.Nonce = rand.Uint64()
 	keyPair := a.wallet.GetByPublicKey(partyId)
 	if keyPair == nil {
 		log.Printf("couldn't find private key for: %s", partyId)
 		return nil
 	}
-	return a.buildTx(keyPair, lastBlock.ChainId, pow, inputData)
+	return a.buildTx(keyPair, lastBlock, pow, inputData)
 }
 
 func (a *Authenticator) SubmitTx(tx *commandspb.Transaction) *corepb.SubmitTransactionResponse {
