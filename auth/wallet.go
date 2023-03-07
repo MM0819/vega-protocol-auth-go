@@ -40,7 +40,7 @@ func (w *Wallet) Get(idx uint) *KeyPair {
 	keyPair := w.derivedKeys[idx]
 	if keyPair == nil {
 		// TODO - what do we use for the derivation path in the web wallet??
-		key, _ := derivation.DeriveForPath(fmt.Sprintf("m/44'/0819'/%d'", idx), w.seed)
+		key, _ := derivation.DeriveForPath(fmt.Sprintf("m/44'/1789'/0'/0/%d'", idx), w.seed)
 		privateKey := ed25519.NewKeyFromSeed(key.Key)
 		privateKeyHex := fmt.Sprintf("%x", key.Key)
 		publicKeyHex := fmt.Sprintf("%x", privateKey.Public())
