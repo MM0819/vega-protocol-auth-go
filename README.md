@@ -6,4 +6,4 @@ Using this code means that you do not need to depend on a Vega wallet as describ
 
 ## Usage
 
-See [main.go]() for example usage
+See [main.go](https://github.com/MM0819/vega-protocol-auth-go/blob/main/main.go) for example usage.
