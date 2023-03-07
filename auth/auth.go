@@ -42,9 +42,13 @@ func (a *Authenticator) getLastBlock() *corepb.LastBlockHeightResponse {
 func (a *Authenticator) buildTx(
 	keyPair *KeyPair,
 	lastBlock *corepb.LastBlockHeightResponse,
-	proofOfWork *commandspb.ProofOfWork,
 	inputData *commandspb.InputData,
 ) *commandspb.Transaction {
+	pow := a.getProofOfWork(lastBlock)
+	if pow == nil {
+		log.Printf("couldn't get proof of work")
+		return nil
+	}
 	inputDataBytes, _ := proto.Marshal(inputData)
 	inputDataPacked := bytes.Join([][]byte{
 		[]byte(lastBlock.ChainId),
@@ -60,7 +64,7 @@ func (a *Authenticator) buildTx(
 	tx := &commandspb.Transaction{
 		Version:   commandspb.TxVersion_TX_VERSION_V3,
 		Signature: signature,
-		Pow:       proofOfWork,
+		Pow:       pow,
 		InputData: inputDataBytes,
 		From:      &commandspb.Transaction_PubKey{PubKey: keyPair.PublicKey},
 	}
@@ -86,19 +90,14 @@ func (a *Authenticator) Sign(partyId string, inputData *commandspb.InputData) *c
 	if lastBlock == nil {
 		return nil
 	}
-	pow := a.getProofOfWork(lastBlock)
-	if pow == nil {
-		log.Printf("couldn't get proof of work")
-		return nil
-	}
 	inputData.BlockHeight = lastBlock.Height
 	inputData.Nonce = rand.Uint64()
-	keyPair := a.wallet.GetByPublicKey(partyId)
-	if keyPair == nil {
-		log.Printf("couldn't find private key for: %s", partyId)
+	keyPair, err := a.wallet.GetByPublicKey(partyId)
+	if err != nil {
+		log.Printf("%v", err)
 		return nil
 	}
-	return a.buildTx(keyPair, lastBlock, pow, inputData)
+	return a.buildTx(keyPair, lastBlock, inputData)
 }
 
 func (a *Authenticator) SubmitTx(tx *commandspb.Transaction) *corepb.SubmitTransactionResponse {
