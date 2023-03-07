@@ -2,7 +2,6 @@ package auth
 
 import (
 	"crypto/ed25519"
-	"encoding/hex"
 	"fmt"
 	"github.com/tyler-smith/go-bip39"
 	"github.com/vitelabs/go-vite/wallet/hd-bip/derivation"
@@ -20,10 +19,9 @@ func NewKeyPair(privateKey string, publicKey string) *KeyPair {
 }
 
 type Wallet struct {
-	key          *derivation.Key
-	seed         []byte
-	derivedKeys  map[uint]*KeyPair
-	importedKeys map[string]*KeyPair
+	key         *derivation.Key
+	seed        []byte
+	derivedKeys map[uint]*KeyPair
 }
 
 func NewWallet(mnemonic string) *Wallet {
@@ -32,9 +30,8 @@ func NewWallet(mnemonic string) *Wallet {
 	}
 	seed := bip39.NewSeed(mnemonic, "")
 	return &Wallet{
-		seed:         seed,
-		derivedKeys:  map[uint]*KeyPair{},
-		importedKeys: map[string]*KeyPair{},
+		seed:        seed,
+		derivedKeys: map[uint]*KeyPair{},
 	}
 }
 
@@ -53,22 +50,10 @@ func (w *Wallet) Get(idx uint) *KeyPair {
 
 func (w *Wallet) GetByPublicKey(publicKey string) *KeyPair {
 	publicKey = strings.ToLower(publicKey)
-	keyPair := w.importedKeys[publicKey]
-	if keyPair == nil {
-		for _, k := range maps.Values(w.derivedKeys) {
-			if k.PublicKey == publicKey {
-				keyPair = k
-				break
-			}
+	for _, k := range maps.Values(w.derivedKeys) {
+		if k.PublicKey == publicKey {
+			return k
 		}
 	}
-	return keyPair
-}
-
-func (w *Wallet) Import(privateKey string) {
-	privateKey = strings.ToLower(privateKey)
-	pk, _ := hex.DecodeString(privateKey)
-	key := ed25519.NewKeyFromSeed(pk)
-	publicKey := fmt.Sprintf("%x", key.Public())
-	w.importedKeys[publicKey] = NewKeyPair(privateKey, publicKey)
+	return nil
 }
