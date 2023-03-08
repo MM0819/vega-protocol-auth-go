@@ -30,6 +30,8 @@ github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/tyler-smith/go-bip39 v1.1.0 h1:5eUemwrMargf3BSLRRCalXT93Ns6pQJIjYQN2nyfOP8=
 github.com/tyler-smith/go-bip39 v1.1.0/go.mod h1:gUYDtqQw1JS3ZJ8UWVcGTGqqr6YIN3CWg+kkNaLt55U=
+github.com/vegaprotocol/go-slip10 v0.1.0 h1:pP3XF2gSKM6OuaAURobHZlXZ9AzZ5LgeWvXFudL7Mb4=
+github.com/vegaprotocol/go-slip10 v0.1.0/go.mod h1:zTjs9hXxElXfZvPRWWFMtEYSe7udGFP1iUM1ktJ72HI=
 github.com/vitelabs/go-vite v2.10.2+incompatible h1:ZNvgMXna0CtqZm3h6fzsIZhBqpTWBV5kzxsZEN0mCXU=
 github.com/vitelabs/go-vite v2.10.2+incompatible/go.mod h1:o4/1h2Mw/2zF8y8bN+JgiEMcdIhoxQEnDPXPxVgzqRY=
 golang.org/x/crypto v0.0.0-20190211182817-74369b46fc67/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=

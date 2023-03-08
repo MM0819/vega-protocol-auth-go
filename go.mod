@@ -6,6 +6,7 @@ require (
 	code.vegaprotocol.io/vega v0.68.3
 	github.com/google/uuid v1.3.0
 	github.com/tyler-smith/go-bip39 v1.1.0
+	github.com/vegaprotocol/go-slip10 v0.1.0
 	github.com/vitelabs/go-vite v2.10.2+incompatible
 	golang.org/x/crypto v0.7.0
 	golang.org/x/exp v0.0.0-20230306221820-f0f767cdffd6

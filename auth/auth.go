@@ -73,6 +73,9 @@ func (a *Authenticator) buildTx(
 
 func (a *Authenticator) signInputData(privateKey string, inputDataPacked []byte) string {
 	hash := sha3.Sum256(inputDataPacked)
+	if len(privateKey) > 64 {
+		privateKey = privateKey[0:64]
+	}
 	key, _ := hex.DecodeString(privateKey)
 	sig := ed25519.Sign(ed25519.NewKeyFromSeed(key), hash[:])
 	return hex.EncodeToString(sig)
