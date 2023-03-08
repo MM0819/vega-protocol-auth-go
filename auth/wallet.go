@@ -1,12 +1,12 @@
 package auth
 
 import (
-	"crypto/ed25519"
 	"fmt"
 	"github.com/tyler-smith/go-bip39"
+	"github.com/vegaprotocol/go-slip10"
 	"github.com/vitelabs/go-vite/common/db/xleveldb/errors"
-	"github.com/vitelabs/go-vite/wallet/hd-bip/derivation"
 	"golang.org/x/exp/maps"
+	"log"
 	"strings"
 )
 
@@ -20,7 +20,6 @@ func NewKeyPair(privateKey string, publicKey string) *KeyPair {
 }
 
 type Wallet struct {
-	key         *derivation.Key
 	seed        []byte
 	derivedKeys map[uint]*KeyPair
 }
@@ -39,10 +38,15 @@ func NewWallet(mnemonic string) *Wallet {
 func (w *Wallet) Get(idx uint) *KeyPair {
 	keyPair := w.derivedKeys[idx]
 	if keyPair == nil {
-		key, _ := derivation.DeriveForPath(fmt.Sprintf("m/44'/1789'/0'/%d'", idx), w.seed)
-		privateKey := ed25519.NewKeyFromSeed(key.Key)
-		privateKeyHex := fmt.Sprintf("%x", key.Key)
-		publicKeyHex := fmt.Sprintf("%x", privateKey.Public())
+		path := fmt.Sprintf("m/1789'/0'/%d'", idx)
+		key, err := slip10.DeriveForPath(path, w.seed)
+		if err != nil {
+			log.Printf("cannot derive key: %v", err)
+			return nil
+		}
+		publicKey, privateKey := key.Keypair()
+		privateKeyHex := fmt.Sprintf("%x", privateKey)
+		publicKeyHex := fmt.Sprintf("%x", publicKey)
 		w.derivedKeys[idx] = NewKeyPair(privateKeyHex, publicKeyHex)
 	}
 	return w.derivedKeys[idx]
