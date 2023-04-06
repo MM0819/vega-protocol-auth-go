@@ -5,6 +5,7 @@ go 1.19
 require (
 	code.vegaprotocol.io/vega v0.68.3
 	github.com/google/uuid v1.3.0
+	github.com/sasha-s/go-deadlock v0.3.1
 	github.com/tyler-smith/go-bip39 v1.1.0
 	github.com/vegaprotocol/go-slip10 v0.1.0
 	github.com/vitelabs/go-vite v2.10.2+incompatible
@@ -19,6 +20,7 @@ require (
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.9.0 // indirect
+	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
